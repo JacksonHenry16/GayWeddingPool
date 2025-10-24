@@ -84,11 +84,6 @@
     .section-title { margin: 0 0 8px; font-size: 16px; font-weight: 600; }
     .meta { font-size: 13px; color: var(--muted); }
     .results-note { margin: 0; }
-    .result-row { display:flex; flex-direction:column; gap:6px; padding:12px; border:1px solid var(--border); border-radius:12px; background:#f9fafb; }
-    .result-prompt { font-weight:600; font-size:14px; }
-    .result-status { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:600; border:1px solid var(--border); color:#312e81; background:#eef2ff; }
-    .result-status.pending { background:#fef3c7; color:#b45309; border-color:#fde68a; }
-    .result-status.resolved { background:#dcfce7; color:#166534; border-color:#bbf7d0; }
   </style>
 </head>
 <body>
@@ -631,10 +626,10 @@
           : 'Not submitted';
         return `
           <tr class="${currentUser && entry.id === currentUser.id ? 'highlight' : ''}">
-            <td data-label="Player">${entry.firstName} ${entry.lastName}</td>
-            <td data-label="Correct">${hasPicks ? score : '—'}</td>
-            <td data-label="Resolved lines">${totalResolved}</td>
-            <td data-label="Submitted">${submittedText}</td>
+            <td>${entry.firstName} ${entry.lastName}</td>
+            <td>${hasPicks ? score : '—'}</td>
+            <td>${totalResolved}</td>
+            <td>${submittedText}</td>
           </tr>
         `;
       }).join('') || '<tr><td colspan="4">No entries yet. Once picks are submitted, they will appear here.</td></tr>';
@@ -698,11 +693,11 @@
 
       resultsEditor.innerHTML = `${introNote}${sectionsMarkup}`;
 
-      if (!canEdit) {
-        return;
-      }
-
       resultsEditor.querySelectorAll('select').forEach(select => {
+        if (!canEdit) {
+          select.disabled = true;
+          return;
+        }
         select.addEventListener('change', event => {
           const key = event.target.dataset.key;
           const value = event.target.value;
