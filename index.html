@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wedding Pool</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --accent: #4f46e5;
+      --accent-2: #22c55e;
+      --border: #e5e7eb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 24px; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: var(--bg); color: var(--ink);
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    h1 { font-size: 28px; margin: 0; }
+    .blurb { color: var(--muted); font-size: 14px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; box-shadow: 0 4px 14px rgba(0,0,0,0.04); }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    @media (min-width: 720px) { .grid { grid-template-columns: 1fr 1fr; } }
+    section h2 { margin: 0 0 12px; font-size: 18px; }
+    .q { padding: 14px; border:1px solid var(--border); border-radius: 12px; }
+    .q p { margin: 0 0 10px; font-weight: 600; }
+    .row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    label { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+    input[type="text"], select, input[type="time"], input[type="number"] {
+      padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); width: 100%; max-width: 280px; font-size: 14px;
+    }
+    .toolbar { display:flex; gap:8px; flex-wrap:wrap; }
+    button { border: 1px solid var(--border); background: var(--card); padding: 10px 14px; border-radius: 12px; cursor: pointer; font-weight: 600; }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.success { background: var(--accent-2); color: white; border-color: var(--accent-2); }
+    .footer { color: var(--muted); font-size: 12px; }
+    .req { color: #ef4444; font-size: 12px; margin-top: 6px; display: none; }
+    .pill { background:#eef2ff; color:#3730a3; padding:2px 8px; border-radius:999px; font-size:12px; border:1px solid #c7d2fe; }
+    .stack { display:flex; flex-direction:column; gap:8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Wedding Pool</h1>
+        <p class="blurb">Friday / Saturday lines — <span class="pill">$5 per entry</span> — most correct wins the pot.</p>
+      </div>
+      <div class="stack card" style="padding:14px;">
+        <label>
+          <span style="font-weight:600;">Your Name</span>
+        </label>
+        <input id="playerName" type="text" placeholder="e.g., Jackson" />
+      </div>
+    </header>
+
+    <main class="grid" style="margin-top:16px;">
+      <section class="card">
+        <h2>Rehearsal Dinner Lines</h2>
+        <div class="stack">
+          <div class="q" data-key="rd_toasts">
+            <p>Over/Under 3.5 total toasts given</p>
+            <div class="row">
+              <label><input type="radio" name="rd_toasts" value="Over"/> Over</label>
+              <label><input type="radio" name="rd_toasts" value="Under"/> Under</label>
+            </div>
+            <div class="req">Please choose Over or Under.</div>
+          </div>
+
+          <div class="q" data-key="rd_proposal_ref">
+            <p>Will someone reference the proposal story?</p>
+            <div class="row">
+              <label><input type="radio" name="rd_proposal_ref" value="Yes"/> Yes</label>
+              <label><input type="radio" name="rd_proposal_ref" value="No"/> No</label>
+            </div>
+            <div class="req">Please choose Yes or No.</div>
+          </div>
+
+          <div class="q" data-key="rd_phone_read">
+            <p>Will someone read from their phone during a toast?</p>
+            <div class="row">
+              <label><input type="radio" name="rd_phone_read" value="Yes"/> Yes</label>
+              <label><input type="radio" name="rd_phone_read" value="No"/> No</label>
+            </div>
+            <div class="req">Please choose Yes or No.</div>
+          </div>
+
+          <div class="q" data-key="rd_journey_word">
+            <p>Will anyone use the word “journey” in a toast?</p>
+            <div class="row">
+              <label><input type="radio" name="rd_journey_word" value="Yes"/> Yes</label>
+              <label><input type="radio" name="rd_journey_word" value="No"/> No</label>
+            </div>
+            <div class="req">Please choose Yes or No.</div>
+          </div>
+
+          <div class="q" data-key="rd_bible_quotes">
+            <p>How many Bible verses quoted in the speeches?</p>
+            <div class="row">
+              <label><input type="radio" name="rd_bible_quotes" value="Over 2.5"/> Over 2.5</label>
+              <label><input type="radio" name="rd_bible_quotes" value="Under 2.5"/> Under 2.5</label>
+            </div>
+            <div class="req">Please choose Over or Under.</div>
+          </div>
+
+          <div class="q" data-key="rd_music_bg">
+            <p>Will music be playing in the background during dinner?</p>
+            <div class="row">
+              <label><input type="radio" name="rd_music_bg" value="Yes"/> Yes</label>
+              <label><input type="radio" name="rd_music_bg" value="No"/> No</label>
+            </div>
+            <div class="req">Please choose Yes or No.</div>
+          </div>
+
+          <div class="q" data-key="rd_cant_wait_mentions">
+            <p>Over/Under 2.5 total mentions of “can’t wait for tomorrow” during the speeches?</p>
+            <div class="row">
+              <label><input type="radio" name="rd_cant_wait_mentions" value="Over"/> Over</label>
+              <label><input type="radio" name="rd_cant_wait_mentions" value="Under"/> Under</label>
+            </div>
+            <div class="req">Please choose Over or Under.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Wedding Day Lines</h2>
+        <div class="stack">
+          <div class="q" data-key="wd_on_time">
+            <p>Will the ceremony start on time (within 5 min of 4:00 PM)?</p>
+            <div class="row">
+              <label><input type="radio" name="wd_on_time" value="Yes"/> Yes</label>
+              <label><input type="radio" name="wd_on_time" value="No"/> No</label>
+            </div>
+            <div class="req">Please choose Yes or No.</div>
+          </div>
+
+          <div class="q" data-key="wd_judson_tears">
+            <p>Will there be visible tears from Judson?</p>
+            <div class="row">
+              <label><input type="radio" name="wd_judson_tears" value="Yes"/> Yes</label>
+              <label><input type="radio" name="wd_judson_tears" value="No"/> No</label>
+            </div>
+            <div class="req">Please choose Yes or No.</div>
+          </div>
+
+          <div class="q" data-key="wd_phone_go_off">
+            <p>Will someone’s phone go off during the ceremony?</p>
+            <div class="row">
+              <label><input type="radio" name="wd_phone_go_off" value="Yes"/> Yes</label>
+              <label><input type="radio" name="wd_phone_go_off" value="No"/> No</label>
+            </div>
+            <div class="req">Please choose Yes or No.</div>
+          </div>
+
+          <div class="q" data-key="wd_kiss_length">
+            <p>Will the kiss last longer than 3 seconds?</p>
+            <div class="row">
+              <label><input type="radio" name="wd_kiss_length" value="Yes"/> Yes</label>
+              <label><input type="radio" name="wd_kiss_length" value="No"/> No</label>
+            </div>
+            <div class="req">Please choose Yes or No.</div>
+          </div>
+
+          <div class="q" data-key="wd_ceremony_len">
+            <p>Ceremony length of time Over/Under 19.5 minutes.</p>
+            <div class="row">
+              <label><input type="radio" name="wd_ceremony_len" value="Over"/> Over</label>
+              <label><input type="radio" name="wd_ceremony_len" value="Under"/> Under</label>
+            </div>
+            <div class="req">Please choose Over or Under.</div>
+          </div>
+
+          <div class="q" data-key="wd_cake_cut">
+            <p>Over/Under 7:30 PM for cake cutting.</p>
+            <div class="row">
+              <label><input type="radio" name="wd_cake_cut" value="Over"/> Over</label>
+              <label><input type="radio" name="wd_cake_cut" value="Under"/> Under</label>
+            </div>
+            <div class="req">Please choose Over or Under.</div>
+          </div>
+
+          <div class="q" data-key="wd_kayla_outfit">
+            <p>Will Kayla change outfits during the night?</p>
+            <div class="row">
+              <label><input type="radio" name="wd_kayla_outfit" value="Yes"/> Yes</label>
+              <label><input type="radio" name="wd_kayla_outfit" value="No"/> No</label>
+            </div>
+            <div class="req">Please choose Yes or No.</div>
+          </div>
+
+          <div class="q" data-key="wd_line_dance">
+            <p>Will there be a line dance (Cha Cha Slide, Wobble, etc.)?</p>
+            <div class="row">
+              <label><input type="radio" name="wd_line_dance" value="Yes"/> Yes</label>
+              <label><input type="radio" name="wd_line_dance" value="No"/> No</label>
+            </div>
+            <div class="req">Please choose Yes or No.</div>
+          </div>
+
+          <div class="q" data-key="wd_brock_cry">
+            <p>Will the Brock cry during the ceremony?</p>
+            <div class="row">
+              <label><input type="radio" name="wd_brock_cry" value="Yes"/> Yes</label>
+              <label><input type="radio" name="wd_brock_cry" value="No"/> No</label>
+            </div>
+            <div class="req">Please choose Yes or No.</div>
+          </div>
+
+          <div class="q" data-key="wd_first_dance">
+            <p>First dance song:</p>
+            <div class="row">
+              <label><input type="radio" name="wd_first_dance" value="Slow ballad"/> Slow ballad</label>
+              <label><input type="radio" name="wd_first_dance" value="Upbeat song"/> Upbeat song</label>
+            </div>
+            <div class="req">Please choose one.</div>
+          </div>
+
+          <div class="q" data-key="wd_mr_brightside">
+            <p>Will the DJ play “Mr. Brightside”?</p>
+            <div class="row">
+              <label><input type="radio" name="wd_mr_brightside" value="Yes"/> Yes</label>
+              <label><input type="radio" name="wd_mr_brightside" value="No"/> No</label>
+            </div>
+            <div class="req">Please choose Yes or No.</div>
+          </div>
+
+          <div class="q" data-key="wd_leave_before_10">
+            <p>Will the couple leave before 10:00 PM?</p>
+            <div class="row">
+              <label><input type="radio" name="wd_leave_before_10" value="Yes"/> Yes</label>
+              <label><input type="radio" name="wd_leave_before_10" value="No"/> No</label>
+            </div>
+            <div class="req">Please choose Yes or No.</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div class="card" style="margin-top:16px;">
+      <h2 style="margin-top:0;">Submit Your Picks</h2>
+      <p class="blurb">This is a friendly pool for fun. $5 per entry; most correct wins the pot.</p>
+      <div class="toolbar">
+        <button class="primary" id="save">Save (local)</button>
+        <button id="export">Export CSV</button>
+        <button id="share">Copy Shareable JSON</button>
+        <button class="success" id="print">Print Card</button>
+        <button id="reset">Reset</button>
+      </div>
+      <p class="footer" style="margin-top:10px;">Your answers save to this browser only. To collect entries, share this page link and have guests export or show their printed card. You can also paste the copied JSON to a spreadsheet later.</p>
+    </div>
+
+  </div>
+
+  <script>
+    const fields = [
+      'rd_toasts','rd_proposal_ref','rd_phone_read','rd_journey_word','rd_bible_quotes','rd_music_bg','rd_cant_wait_mentions',
+      'wd_on_time','wd_judson_tears','wd_phone_go_off','wd_kiss_length','wd_ceremony_len','wd_cake_cut','wd_kayla_outfit','wd_line_dance','wd_brock_cry','wd_first_dance','wd_mr_brightside','wd_leave_before_10'
+    ];
+
+    function readForm() {
+      const data = { name: document.getElementById('playerName').value.trim(), timestamp: new Date().toISOString() };
+      fields.forEach(k => {
+        const el = document.querySelector(`input[name="${k}"]:checked`);
+        data[k] = el ? el.value : '';
+      });
+      return data;
+    }
+
+    function validate() {
+      let ok = true;
+      document.querySelectorAll('.q').forEach(block => {
+        const key = block.dataset.key;
+        const chosen = document.querySelector(`input[name="${key}"]:checked`);
+        const req = block.querySelector('.req');
+        if (!chosen) { ok = false; req.style.display = 'block'; }
+        else req.style.display = 'none';
+      });
+      const name = document.getElementById('playerName');
+      if (!name.value.trim()) { name.focus(); ok = false; name.style.borderColor = '#ef4444'; }
+      else name.style.borderColor = '#e5e7eb';
+      return ok;
+    }
+
+    function saveLocal() {
+      if (!validate()) { alert('Please enter your name and answer every line.'); return; }
+      const data = readForm();
+      localStorage.setItem('weddingPoolEntry', JSON.stringify(data));
+      alert('Saved! (This browser only)');
+    }
+
+    function loadLocal() {
+      const raw = localStorage.getItem('weddingPoolEntry');
+      if (!raw) return;
+      try {
+        const data = JSON.parse(raw);
+        if (data.name) document.getElementById('playerName').value = data.name;
+        fields.forEach(k => {
+          if (data[k]) {
+            const el = document.querySelector(`input[name="${k}"][value="${CSS.escape(data[k])}"]`);
+            if (el) el.checked = true;
+          }
+        });
+      } catch {}
+    }
+
+    function toCSV(obj) {
+      const headers = ['name','timestamp', ...fields];
+      const row = headers.map(h => (obj[h] ?? '').toString().replaceAll('"','""'));
+      return headers.join(',') + '\n' + row.map(v => `"${v}"`).join(',');
+    }
+
+    function exportCSV() {
+      if (!validate()) { alert('Please enter your name and answer every line.'); return; }
+      const data = readForm();
+      const csv = toCSV(data);
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `wedding-pool_${data.name.replace(/\s+/g,'-').toLowerCase()}.csv`;
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+
+    function copyJSON() {
+      if (!validate()) { alert('Please enter your name and answer every line.'); return; }
+      const data = readForm();
+      const txt = JSON.stringify(data);
+      navigator.clipboard.writeText(txt).then(() => alert('Copied your picks JSON to clipboard!')); 
+    }
+
+    function printCard() { window.print(); }
+    function resetForm() { localStorage.removeItem('weddingPoolEntry'); location.reload(); }
+
+    document.getElementById('save').addEventListener('click', saveLocal);
+    document.getElementById('export').addEventListener('click', exportCSV);
+    document.getElementById('share').addEventListener('click', copyJSON);
+    document.getElementById('print').addEventListener('click', printCard);
+    document.getElementById('reset').addEventListener('click', resetForm);
+
+    loadLocal();
+  </script>
+</body>
+</html>
