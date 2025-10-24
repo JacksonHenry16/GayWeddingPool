@@ -13,35 +13,48 @@
       --accent: #4f46e5;
       --accent-2: #22c55e;
       --border: #e5e7eb;
+      --danger: #ef4444;
     }
     * { box-sizing: border-box; }
     body {
-      margin: 0; padding: 24px; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      margin: 0; padding: 24px; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
       background: var(--bg); color: var(--ink);
     }
-    .container { max-width: 900px; margin: 0 auto; }
+    .container { max-width: 1100px; margin: 0 auto; display:flex; flex-direction:column; gap:16px; }
     header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
     h1 { font-size: 28px; margin: 0; }
     .blurb { color: var(--muted); font-size: 14px; }
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; box-shadow: 0 4px 14px rgba(0,0,0,0.04); }
     .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-    @media (min-width: 720px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (min-width: 880px) { .grid.two { grid-template-columns: 1fr 1fr; } }
     section h2 { margin: 0 0 12px; font-size: 18px; }
     .q { padding: 14px; border:1px solid var(--border); border-radius: 12px; }
     .q p { margin: 0 0 10px; font-weight: 600; }
     .row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
     label { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
-    input[type="text"], select, input[type="time"], input[type="number"] {
-      padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); width: 100%; max-width: 280px; font-size: 14px;
-    }
+    input[type="text"], input[type="password"], select { padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); width: 100%; font-size: 14px; }
     .toolbar { display:flex; gap:8px; flex-wrap:wrap; }
     button { border: 1px solid var(--border); background: var(--card); padding: 10px 14px; border-radius: 12px; cursor: pointer; font-weight: 600; }
     button.primary { background: var(--accent); color: white; border-color: var(--accent); }
     button.success { background: var(--accent-2); color: white; border-color: var(--accent-2); }
     .footer { color: var(--muted); font-size: 12px; }
-    .req { color: #ef4444; font-size: 12px; margin-top: 6px; display: none; }
+    .req { color: var(--danger); font-size: 12px; margin-top: 6px; display: none; }
     .pill { background:#eef2ff; color:#3730a3; padding:2px 8px; border-radius:999px; font-size:12px; border:1px solid #c7d2fe; }
-    .stack { display:flex; flex-direction:column; gap:8px; }
+    .stack { display:flex; flex-direction:column; gap:12px; }
+    .view { display:none; }
+    .view.active { display:block; }
+    form.stack > button { align-self:flex-start; }
+    .error { color: var(--danger); font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+    th { background: #eef2ff; font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; color: #312e81; }
+    tr.highlight { background: #ecfdf5; }
+    .status-chip { display:inline-flex; align-items:center; gap:6px; padding:2px 10px; border-radius:999px; font-size:12px; border:1px solid var(--border); }
+    .status-chip.correct { background:#dcfce7; color:#166534; border-color:#bbf7d0; }
+    .status-chip.incorrect { background:#fee2e2; color:#b91c1c; border-color:#fecaca; }
+    .status-chip.pending { background:#fef3c7; color:#b45309; border-color:#fde68a; }
+    .section-title { margin: 0 0 8px; font-size: 16px; font-weight: 600; }
+    .meta { font-size: 13px; color: var(--muted); }
   </style>
 </head>
 <body>
@@ -52,297 +65,601 @@
         <p class="blurb">Friday / Saturday lines — <span class="pill">$5 per entry</span> — most correct wins the pot.</p>
       </div>
       <div class="stack card" style="padding:14px;">
-        <label>
-          <span style="font-weight:600;">Your Name</span>
-        </label>
-        <input id="playerName" type="text" placeholder="e.g., Jackson" />
+        <div style="font-weight:600;">Pool Hub</div>
+        <div class="meta" id="headerStatus">Sign in to start making your picks.</div>
       </div>
     </header>
 
-    <main class="grid" style="margin-top:16px;">
-      <section class="card">
-        <h2>Rehearsal Dinner Lines</h2>
-        <div class="stack">
-          <div class="q" data-key="rd_toasts">
-            <p>Over/Under 3.5 total toasts given</p>
-            <div class="row">
-              <label><input type="radio" name="rd_toasts" value="Over"/> Over</label>
-              <label><input type="radio" name="rd_toasts" value="Under"/> Under</label>
-            </div>
-            <div class="req">Please choose Over or Under.</div>
-          </div>
+    <div id="authView" class="view active">
+      <div class="card">
+        <h2 style="margin-top:0;">Join the pool</h2>
+        <p class="blurb">Create a quick account with your name and a password, then submit your answers. Every time you sign back in, you’ll land on the live scoreboard.</p>
+        <div class="grid two">
+          <form id="registerForm" class="stack">
+            <h3 style="margin:0;">Create account</h3>
+            <label class="stack">
+              <span>First name</span>
+              <input type="text" id="registerFirst" autocomplete="given-name" required />
+            </label>
+            <label class="stack">
+              <span>Last name</span>
+              <input type="text" id="registerLast" autocomplete="family-name" required />
+            </label>
+            <label class="stack">
+              <span>Password</span>
+              <input type="password" id="registerPassword" autocomplete="new-password" required />
+            </label>
+            <div class="error" id="registerError"></div>
+            <button type="submit" class="primary">Create account</button>
+          </form>
 
-          <div class="q" data-key="rd_proposal_ref">
-            <p>Will someone reference the proposal story?</p>
-            <div class="row">
-              <label><input type="radio" name="rd_proposal_ref" value="Yes"/> Yes</label>
-              <label><input type="radio" name="rd_proposal_ref" value="No"/> No</label>
-            </div>
-            <div class="req">Please choose Yes or No.</div>
-          </div>
-
-          <div class="q" data-key="rd_phone_read">
-            <p>Will someone read from their phone during a toast?</p>
-            <div class="row">
-              <label><input type="radio" name="rd_phone_read" value="Yes"/> Yes</label>
-              <label><input type="radio" name="rd_phone_read" value="No"/> No</label>
-            </div>
-            <div class="req">Please choose Yes or No.</div>
-          </div>
-
-          <div class="q" data-key="rd_journey_word">
-            <p>Will anyone use the word “journey” in a toast?</p>
-            <div class="row">
-              <label><input type="radio" name="rd_journey_word" value="Yes"/> Yes</label>
-              <label><input type="radio" name="rd_journey_word" value="No"/> No</label>
-            </div>
-            <div class="req">Please choose Yes or No.</div>
-          </div>
-
-          <div class="q" data-key="rd_bible_quotes">
-            <p>How many Bible verses quoted in the speeches?</p>
-            <div class="row">
-              <label><input type="radio" name="rd_bible_quotes" value="Over 2.5"/> Over 2.5</label>
-              <label><input type="radio" name="rd_bible_quotes" value="Under 2.5"/> Under 2.5</label>
-            </div>
-            <div class="req">Please choose Over or Under.</div>
-          </div>
-
-          <div class="q" data-key="rd_music_bg">
-            <p>Will music be playing in the background during dinner?</p>
-            <div class="row">
-              <label><input type="radio" name="rd_music_bg" value="Yes"/> Yes</label>
-              <label><input type="radio" name="rd_music_bg" value="No"/> No</label>
-            </div>
-            <div class="req">Please choose Yes or No.</div>
-          </div>
-
-          <div class="q" data-key="rd_cant_wait_mentions">
-            <p>Over/Under 2.5 total mentions of “can’t wait for tomorrow” during the speeches?</p>
-            <div class="row">
-              <label><input type="radio" name="rd_cant_wait_mentions" value="Over"/> Over</label>
-              <label><input type="radio" name="rd_cant_wait_mentions" value="Under"/> Under</label>
-            </div>
-            <div class="req">Please choose Over or Under.</div>
-          </div>
+          <form id="loginForm" class="stack">
+            <h3 style="margin:0;">Already playing?</h3>
+            <label class="stack">
+              <span>First name</span>
+              <input type="text" id="loginFirst" autocomplete="given-name" required />
+            </label>
+            <label class="stack">
+              <span>Last name</span>
+              <input type="text" id="loginLast" autocomplete="family-name" required />
+            </label>
+            <label class="stack">
+              <span>Password</span>
+              <input type="password" id="loginPassword" autocomplete="current-password" required />
+            </label>
+            <div class="error" id="loginError"></div>
+            <button type="submit" class="primary">Sign in</button>
+          </form>
         </div>
-      </section>
-
-      <section class="card">
-        <h2>Wedding Day Lines</h2>
-        <div class="stack">
-          <div class="q" data-key="wd_on_time">
-            <p>Will the ceremony start on time (within 5 min of 4:00 PM)?</p>
-            <div class="row">
-              <label><input type="radio" name="wd_on_time" value="Yes"/> Yes</label>
-              <label><input type="radio" name="wd_on_time" value="No"/> No</label>
-            </div>
-            <div class="req">Please choose Yes or No.</div>
-          </div>
-
-          <div class="q" data-key="wd_judson_tears">
-            <p>Will there be visible tears from Judson?</p>
-            <div class="row">
-              <label><input type="radio" name="wd_judson_tears" value="Yes"/> Yes</label>
-              <label><input type="radio" name="wd_judson_tears" value="No"/> No</label>
-            </div>
-            <div class="req">Please choose Yes or No.</div>
-          </div>
-
-          <div class="q" data-key="wd_phone_go_off">
-            <p>Will someone’s phone go off during the ceremony?</p>
-            <div class="row">
-              <label><input type="radio" name="wd_phone_go_off" value="Yes"/> Yes</label>
-              <label><input type="radio" name="wd_phone_go_off" value="No"/> No</label>
-            </div>
-            <div class="req">Please choose Yes or No.</div>
-          </div>
-
-          <div class="q" data-key="wd_kiss_length">
-            <p>Will the kiss last longer than 3 seconds?</p>
-            <div class="row">
-              <label><input type="radio" name="wd_kiss_length" value="Yes"/> Yes</label>
-              <label><input type="radio" name="wd_kiss_length" value="No"/> No</label>
-            </div>
-            <div class="req">Please choose Yes or No.</div>
-          </div>
-
-          <div class="q" data-key="wd_ceremony_len">
-            <p>Ceremony length of time Over/Under 19.5 minutes.</p>
-            <div class="row">
-              <label><input type="radio" name="wd_ceremony_len" value="Over"/> Over</label>
-              <label><input type="radio" name="wd_ceremony_len" value="Under"/> Under</label>
-            </div>
-            <div class="req">Please choose Over or Under.</div>
-          </div>
-
-          <div class="q" data-key="wd_cake_cut">
-            <p>Over/Under 7:30 PM for cake cutting.</p>
-            <div class="row">
-              <label><input type="radio" name="wd_cake_cut" value="Over"/> Over</label>
-              <label><input type="radio" name="wd_cake_cut" value="Under"/> Under</label>
-            </div>
-            <div class="req">Please choose Over or Under.</div>
-          </div>
-
-          <div class="q" data-key="wd_kayla_outfit">
-            <p>Will Kayla change outfits during the night?</p>
-            <div class="row">
-              <label><input type="radio" name="wd_kayla_outfit" value="Yes"/> Yes</label>
-              <label><input type="radio" name="wd_kayla_outfit" value="No"/> No</label>
-            </div>
-            <div class="req">Please choose Yes or No.</div>
-          </div>
-
-          <div class="q" data-key="wd_line_dance">
-            <p>Will there be a line dance (Cha Cha Slide, Wobble, etc.)?</p>
-            <div class="row">
-              <label><input type="radio" name="wd_line_dance" value="Yes"/> Yes</label>
-              <label><input type="radio" name="wd_line_dance" value="No"/> No</label>
-            </div>
-            <div class="req">Please choose Yes or No.</div>
-          </div>
-
-          <div class="q" data-key="wd_brock_cry">
-            <p>Will the Brock cry during the ceremony?</p>
-            <div class="row">
-              <label><input type="radio" name="wd_brock_cry" value="Yes"/> Yes</label>
-              <label><input type="radio" name="wd_brock_cry" value="No"/> No</label>
-            </div>
-            <div class="req">Please choose Yes or No.</div>
-          </div>
-
-          <div class="q" data-key="wd_first_dance">
-            <p>First dance song:</p>
-            <div class="row">
-              <label><input type="radio" name="wd_first_dance" value="Slow ballad"/> Slow ballad</label>
-              <label><input type="radio" name="wd_first_dance" value="Upbeat song"/> Upbeat song</label>
-            </div>
-            <div class="req">Please choose one.</div>
-          </div>
-
-          <div class="q" data-key="wd_mr_brightside">
-            <p>Will the DJ play “Mr. Brightside”?</p>
-            <div class="row">
-              <label><input type="radio" name="wd_mr_brightside" value="Yes"/> Yes</label>
-              <label><input type="radio" name="wd_mr_brightside" value="No"/> No</label>
-            </div>
-            <div class="req">Please choose Yes or No.</div>
-          </div>
-
-          <div class="q" data-key="wd_leave_before_10">
-            <p>Will the couple leave before 10:00 PM?</p>
-            <div class="row">
-              <label><input type="radio" name="wd_leave_before_10" value="Yes"/> Yes</label>
-              <label><input type="radio" name="wd_leave_before_10" value="No"/> No</label>
-            </div>
-            <div class="req">Please choose Yes or No.</div>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <div class="card" style="margin-top:16px;">
-      <h2 style="margin-top:0;">Submit Your Picks</h2>
-      <p class="blurb">This is a friendly pool for fun. $5 per entry; most correct wins the pot.</p>
-      <div class="toolbar">
-        <button class="primary" id="save">Save (local)</button>
-        <button id="export">Export CSV</button>
-        <button id="share">Copy Shareable JSON</button>
-        <button class="success" id="print">Print Card</button>
-        <button id="reset">Reset</button>
       </div>
-      <p class="footer" style="margin-top:10px;">Your answers save to this browser only. To collect entries, share this page link and have guests export or show their printed card. You can also paste the copied JSON to a spreadsheet later.</p>
     </div>
 
+    <div id="picksView" class="view">
+      <div class="card">
+        <header>
+          <div>
+            <h2 style="margin:0;">Make your picks</h2>
+            <p class="blurb">Signed in as <strong id="picksUserName"></strong></p>
+          </div>
+          <div class="toolbar">
+            <button id="toStatus">View status</button>
+            <button id="logoutFromPicks">Log out</button>
+          </div>
+        </header>
+        <p class="meta">Choose an answer for every line below, then save your card.</p>
+      </div>
+      <div id="questionSections" class="grid two"></div>
+      <div class="card">
+        <div class="toolbar">
+          <button class="primary" id="savePicks">Save picks</button>
+          <button id="exportPicks">Export CSV</button>
+          <button id="copyPicks">Copy JSON</button>
+          <button class="success" id="printPicks">Print card</button>
+        </div>
+        <div class="error" id="picksError" style="margin-top:12px;"></div>
+        <p class="footer" style="margin-top:10px;">Your entry saves to this browser. Export or copy the JSON to send it elsewhere.</p>
+      </div>
+    </div>
+
+    <div id="statusView" class="view">
+      <div class="card">
+        <header>
+          <div>
+            <h2 style="margin:0;">Live status</h2>
+            <p class="blurb">Signed in as <strong id="statusUserName"></strong></p>
+          </div>
+          <div class="toolbar">
+            <button id="editPicks">Edit picks</button>
+            <button id="logoutFromStatus">Log out</button>
+          </div>
+        </header>
+        <p class="meta">Track everyone’s score as outcomes are marked below.</p>
+      </div>
+
+      <div class="card">
+        <h3 class="section-title">Scoreboard</h3>
+        <div class="meta" id="scoreboardMeta"></div>
+        <div style="overflow-x:auto; margin-top:12px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Player</th>
+                <th>Correct</th>
+                <th>Resolved lines</th>
+                <th>Submitted</th>
+              </tr>
+            </thead>
+            <tbody id="scoreboardBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid two">
+        <div class="card">
+          <h3 class="section-title">Mark actual results</h3>
+          <p class="meta">Update each line as the events happen. Everyone’s standings update instantly.</p>
+          <div id="resultsEditor" class="stack"></div>
+        </div>
+        <div class="card">
+          <h3 class="section-title">Your card</h3>
+          <div id="myPicks"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
-    const fields = [
-      'rd_toasts','rd_proposal_ref','rd_phone_read','rd_journey_word','rd_bible_quotes','rd_music_bg','rd_cant_wait_mentions',
-      'wd_on_time','wd_judson_tears','wd_phone_go_off','wd_kiss_length','wd_ceremony_len','wd_cake_cut','wd_kayla_outfit','wd_line_dance','wd_brock_cry','wd_first_dance','wd_mr_brightside','wd_leave_before_10'
+    const storageKeys = {
+      users: 'weddingPoolUsers',
+      results: 'weddingPoolResults',
+      session: 'weddingPoolSession'
+    };
+
+    const sections = [
+      {
+        title: 'Rehearsal Dinner Lines',
+        questions: [
+          { key: 'rd_toasts', prompt: 'Over/Under 3.5 total toasts given', options: ['Over', 'Under'] },
+          { key: 'rd_proposal_ref', prompt: 'Will someone reference the proposal story?', options: ['Yes', 'No'] },
+          { key: 'rd_phone_read', prompt: 'Will someone read from their phone during a toast?', options: ['Yes', 'No'] },
+          { key: 'rd_journey_word', prompt: 'Will anyone use the word “journey” in a toast?', options: ['Yes', 'No'] },
+          { key: 'rd_bible_quotes', prompt: 'How many Bible verses quoted in the speeches?', options: ['Over 2.5', 'Under 2.5'] },
+          { key: 'rd_music_bg', prompt: 'Will music be playing in the background during dinner?', options: ['Yes', 'No'] },
+          { key: 'rd_cant_wait_mentions', prompt: 'Over/Under 2.5 total mentions of “can’t wait for tomorrow” during the speeches?', options: ['Over', 'Under'] }
+        ]
+      },
+      {
+        title: 'Wedding Day Lines',
+        questions: [
+          { key: 'wd_on_time', prompt: 'Will the ceremony start on time (within 5 min of 4:00 PM)?', options: ['Yes', 'No'] },
+          { key: 'wd_judson_tears', prompt: 'Will there be visible tears from Judson?', options: ['Yes', 'No'] },
+          { key: 'wd_phone_go_off', prompt: 'Will someone’s phone go off during the ceremony?', options: ['Yes', 'No'] },
+          { key: 'wd_kiss_length', prompt: 'Will the kiss last longer than 3 seconds?', options: ['Yes', 'No'] },
+          { key: 'wd_ceremony_len', prompt: 'Ceremony length of time Over/Under 19.5 minutes.', options: ['Over', 'Under'] },
+          { key: 'wd_cake_cut', prompt: 'Over/Under 7:30 PM for cake cutting.', options: ['Over', 'Under'] },
+          { key: 'wd_kayla_outfit', prompt: 'Will Kayla change outfits during the night?', options: ['Yes', 'No'] },
+          { key: 'wd_line_dance', prompt: 'Will there be a line dance (Cha Cha Slide, Wobble, etc.)?', options: ['Yes', 'No'] },
+          { key: 'wd_brock_cry', prompt: 'Will the Brock cry during the ceremony?', options: ['Yes', 'No'] },
+          { key: 'wd_first_dance', prompt: 'First dance song:', options: ['Slow ballad', 'Upbeat song'] },
+          { key: 'wd_mr_brightside', prompt: 'Will the DJ play “Mr. Brightside”?', options: ['Yes', 'No'] },
+          { key: 'wd_leave_before_10', prompt: 'Will the couple leave before 10:00 PM?', options: ['Yes', 'No'] }
+        ]
+      }
     ];
 
-    function readForm() {
-      const data = { name: document.getElementById('playerName').value.trim(), timestamp: new Date().toISOString() };
-      fields.forEach(k => {
-        const el = document.querySelector(`input[name="${k}"]:checked`);
-        data[k] = el ? el.value : '';
-      });
-      return data;
+    const authView = document.getElementById('authView');
+    const picksView = document.getElementById('picksView');
+    const statusView = document.getElementById('statusView');
+    const headerStatus = document.getElementById('headerStatus');
+    const picksUserName = document.getElementById('picksUserName');
+    const statusUserName = document.getElementById('statusUserName');
+    const scoreboardBody = document.getElementById('scoreboardBody');
+    const scoreboardMeta = document.getElementById('scoreboardMeta');
+    const resultsEditor = document.getElementById('resultsEditor');
+    const myPicks = document.getElementById('myPicks');
+    const picksError = document.getElementById('picksError');
+
+    let users = loadUsers();
+    let results = loadResults();
+    let currentUser = loadSession();
+
+    buildQuestionCards();
+    updateHeaderStatus();
+    if (currentUser) {
+      const found = users.find(u => u.id === currentUser.id);
+      if (found) {
+        currentUser = found;
+        showView(found.picks ? 'status' : 'picks');
+      } else {
+        clearSession();
+        showView('auth');
+      }
+    } else {
+      showView('auth');
     }
 
-    function validate() {
-      let ok = true;
-      document.querySelectorAll('.q').forEach(block => {
-        const key = block.dataset.key;
-        const chosen = document.querySelector(`input[name="${key}"]:checked`);
-        const req = block.querySelector('.req');
-        if (!chosen) { ok = false; req.style.display = 'block'; }
-        else req.style.display = 'none';
-      });
-      const name = document.getElementById('playerName');
-      if (!name.value.trim()) { name.focus(); ok = false; name.style.borderColor = '#ef4444'; }
-      else name.style.borderColor = '#e5e7eb';
-      return ok;
-    }
+    document.getElementById('registerForm').addEventListener('submit', handleRegister);
+    document.getElementById('loginForm').addEventListener('submit', handleLogin);
+    document.getElementById('logoutFromPicks').addEventListener('click', logout);
+    document.getElementById('logoutFromStatus').addEventListener('click', logout);
+    document.getElementById('savePicks').addEventListener('click', savePicksForUser);
+    document.getElementById('exportPicks').addEventListener('click', exportCurrentPicks);
+    document.getElementById('copyPicks').addEventListener('click', copyCurrentPicks);
+    document.getElementById('printPicks').addEventListener('click', () => window.print());
+    document.getElementById('editPicks').addEventListener('click', () => showView('picks'));
+    document.getElementById('toStatus').addEventListener('click', () => showView('status'));
 
-    function saveLocal() {
-      if (!validate()) { alert('Please enter your name and answer every line.'); return; }
-      const data = readForm();
-      localStorage.setItem('weddingPoolEntry', JSON.stringify(data));
-      alert('Saved! (This browser only)');
-    }
-
-    function loadLocal() {
-      const raw = localStorage.getItem('weddingPoolEntry');
-      if (!raw) return;
+    function loadUsers() {
       try {
-        const data = JSON.parse(raw);
-        if (data.name) document.getElementById('playerName').value = data.name;
-        fields.forEach(k => {
-          if (data[k]) {
-            const el = document.querySelector(`input[name="${k}"][value="${CSS.escape(data[k])}"]`);
-            if (el) el.checked = true;
+        const raw = localStorage.getItem(storageKeys.users);
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveUsers() {
+      localStorage.setItem(storageKeys.users, JSON.stringify(users));
+    }
+
+    function loadResults() {
+      try {
+        const raw = localStorage.getItem(storageKeys.results);
+        return raw ? JSON.parse(raw) : {};
+      } catch {
+        return {};
+      }
+    }
+
+    function saveResults() {
+      localStorage.setItem(storageKeys.results, JSON.stringify(results));
+    }
+
+    function loadSession() {
+      try {
+        const raw = localStorage.getItem(storageKeys.session);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed.id) return null;
+        return users.find(u => u.id === parsed.id) || null;
+      } catch {
+        return null;
+      }
+    }
+
+    function setSession(user) {
+      localStorage.setItem(storageKeys.session, JSON.stringify({ id: user.id }));
+      currentUser = user;
+      updateHeaderStatus();
+    }
+
+    function clearSession() {
+      localStorage.removeItem(storageKeys.session);
+      currentUser = null;
+      updateHeaderStatus();
+    }
+
+    function updateHeaderStatus() {
+      if (currentUser) {
+        headerStatus.textContent = `Signed in as ${currentUser.firstName} ${currentUser.lastName}`;
+      } else {
+        headerStatus.textContent = 'Sign in to start making your picks.';
+      }
+    }
+
+    function buildQuestionCards() {
+      const container = document.getElementById('questionSections');
+      container.innerHTML = sections.map(section => {
+        const questionsMarkup = section.questions.map(q => {
+          const optionsMarkup = q.options.map(opt => `
+            <label>
+              <input type="radio" name="${q.key}" value="${opt}" /> ${opt}
+            </label>
+          `).join('');
+          return `
+            <div class="q" data-key="${q.key}">
+              <p>${q.prompt}</p>
+              <div class="row">${optionsMarkup}</div>
+              <div class="req">Please choose an option.</div>
+            </div>
+          `;
+        }).join('');
+        return `
+          <section class="card">
+            <h2>${section.title}</h2>
+            <div class="stack">${questionsMarkup}</div>
+          </section>
+        `;
+      }).join('');
+    }
+
+    function showView(view) {
+      [authView, picksView, statusView].forEach(v => v.classList.remove('active'));
+      if (view === 'auth') {
+        authView.classList.add('active');
+      } else if (view === 'picks') {
+        if (!currentUser) { showView('auth'); return; }
+        picksView.classList.add('active');
+        picksUserName.textContent = `${currentUser.firstName} ${currentUser.lastName}`;
+        restoreSelections();
+      } else if (view === 'status') {
+        if (!currentUser) { showView('auth'); return; }
+        statusView.classList.add('active');
+        statusUserName.textContent = `${currentUser.firstName} ${currentUser.lastName}`;
+        renderStatus();
+      }
+    }
+
+    function handleRegister(event) {
+      event.preventDefault();
+      const first = document.getElementById('registerFirst').value.trim();
+      const last = document.getElementById('registerLast').value.trim();
+      const password = document.getElementById('registerPassword').value;
+      const errorEl = document.getElementById('registerError');
+      errorEl.textContent = '';
+
+      if (!first || !last || !password) {
+        errorEl.textContent = 'Please fill out every field.';
+        return;
+      }
+
+      const exists = users.some(u => u.firstName.toLowerCase() === first.toLowerCase() && u.lastName.toLowerCase() === last.toLowerCase());
+      if (exists) {
+        errorEl.textContent = 'That name is already registered. Try signing in instead.';
+        return;
+      }
+
+      const newUser = {
+        id: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : `user-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        firstName: first,
+        lastName: last,
+        password,
+        picks: null
+      };
+      users.push(newUser);
+      saveUsers();
+      setSession(newUser);
+      document.getElementById('registerForm').reset();
+      showView('picks');
+    }
+
+    function handleLogin(event) {
+      event.preventDefault();
+      const first = document.getElementById('loginFirst').value.trim();
+      const last = document.getElementById('loginLast').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const errorEl = document.getElementById('loginError');
+      errorEl.textContent = '';
+
+      if (!first || !last || !password) {
+        errorEl.textContent = 'Please fill out every field.';
+        return;
+      }
+
+      const user = users.find(u => u.firstName.toLowerCase() === first.toLowerCase() && u.lastName.toLowerCase() === last.toLowerCase());
+      if (!user || user.password !== password) {
+        errorEl.textContent = 'Check your name and password, then try again.';
+        return;
+      }
+
+      setSession(user);
+      document.getElementById('loginForm').reset();
+      showView(user.picks ? 'status' : 'picks');
+    }
+
+    function logout() {
+      clearSession();
+      showView('auth');
+    }
+
+    function restoreSelections() {
+      document.querySelectorAll('#questionSections input[type="radio"]').forEach(input => {
+        input.checked = false;
+      });
+      picksError.textContent = '';
+      if (!currentUser || !currentUser.picks) return;
+      Object.entries(currentUser.picks.answers).forEach(([key, value]) => {
+        const radios = document.querySelectorAll(`#questionSections input[name="${key}"]`);
+        radios.forEach(radio => {
+          if (radio.value === value) radio.checked = true;
+        });
+      });
+    }
+
+    function readSelections() {
+      const answers = {};
+      let valid = true;
+      sections.forEach(section => {
+        section.questions.forEach(q => {
+          const chosen = document.querySelector(`#questionSections input[name="${q.key}"]:checked`);
+          answers[q.key] = chosen ? chosen.value : '';
+          const block = document.querySelector(`.q[data-key="${q.key}"] .req`);
+          if (!chosen) {
+            valid = false;
+            block.style.display = 'block';
+          } else {
+            block.style.display = 'none';
           }
         });
-      } catch {}
+      });
+      return { answers, valid };
     }
 
-    function toCSV(obj) {
-      const headers = ['name','timestamp', ...fields];
-      const row = headers.map(h => (obj[h] ?? '').toString().replaceAll('"','""'));
-      return headers.join(',') + '\n' + row.map(v => `"${v}"`).join(',');
+    function savePicksForUser() {
+      if (!currentUser) return;
+      const { answers, valid } = readSelections();
+      if (!valid) {
+        picksError.textContent = 'Please answer every line before saving your picks.';
+        return;
+      }
+      picksError.textContent = '';
+      currentUser.picks = { answers, submittedAt: new Date().toISOString() };
+      users = users.map(u => (u.id === currentUser.id ? currentUser : u));
+      saveUsers();
+      alert('Saved! Your picks are locked in for this browser.');
+      showView('status');
     }
 
-    function exportCSV() {
-      if (!validate()) { alert('Please enter your name and answer every line.'); return; }
-      const data = readForm();
-      const csv = toCSV(data);
+    function exportCurrentPicks() {
+      if (!currentUser || !currentUser.picks) {
+        alert('Save your picks first.');
+        return;
+      }
+      const headers = ['firstName', 'lastName', 'submittedAt', ...allKeys()];
+      const row = headers.map(key => {
+        if (key === 'firstName') return currentUser.firstName;
+        if (key === 'lastName') return currentUser.lastName;
+        if (key === 'submittedAt') return currentUser.picks.submittedAt;
+        return currentUser.picks.answers[key] || '';
+      });
+      const csv = headers.join(',') + '\n' + row.map(v => `"${(v || '').toString().replaceAll('"','""')}"`).join(',');
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = `wedding-pool_${data.name.replace(/\s+/g,'-').toLowerCase()}.csv`;
-      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      a.href = url;
+      a.download = `wedding-pool_${currentUser.firstName}-${currentUser.lastName}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
     }
 
-    function copyJSON() {
-      if (!validate()) { alert('Please enter your name and answer every line.'); return; }
-      const data = readForm();
-      const txt = JSON.stringify(data);
-      navigator.clipboard.writeText(txt).then(() => alert('Copied your picks JSON to clipboard!')); 
+    function copyCurrentPicks() {
+      if (!currentUser || !currentUser.picks) {
+        alert('Save your picks first.');
+        return;
+      }
+      const payload = {
+        firstName: currentUser.firstName,
+        lastName: currentUser.lastName,
+        ...currentUser.picks.answers,
+        submittedAt: currentUser.picks.submittedAt
+      };
+      const json = JSON.stringify(payload);
+      navigator.clipboard.writeText(json).then(() => {
+        alert('Copied your entry JSON to the clipboard!');
+      }).catch(() => {
+        alert(`Copy failed. Here is your data:\n${json}`);
+      });
     }
 
-    function printCard() { window.print(); }
-    function resetForm() { localStorage.removeItem('weddingPoolEntry'); location.reload(); }
+    function allKeys() {
+      return sections.flatMap(section => section.questions.map(q => q.key));
+    }
 
-    document.getElementById('save').addEventListener('click', saveLocal);
-    document.getElementById('export').addEventListener('click', exportCSV);
-    document.getElementById('share').addEventListener('click', copyJSON);
-    document.getElementById('print').addEventListener('click', printCard);
-    document.getElementById('reset').addEventListener('click', resetForm);
+    function renderStatus() {
+      renderScoreboard();
+      renderResultsEditor();
+      renderMyPicks();
+    }
 
-    loadLocal();
+    function renderScoreboard() {
+      const entries = users.filter(u => u.picks);
+      const resolvedKeys = allKeys().filter(key => results[key]);
+      const totalResolved = resolvedKeys.length;
+      const playersText = entries.length
+        ? `${entries.length} active player${entries.length === 1 ? '' : 's'}`
+        : 'No entries yet';
+      const resolvedText = totalResolved
+        ? `${totalResolved} line${totalResolved === 1 ? '' : 's'} resolved`
+        : 'awaiting first result';
+      scoreboardMeta.textContent = `${playersText} • ${resolvedText}.`;
+
+      entries.sort((a, b) => {
+        const scoreDiff = scoreFor(b) - scoreFor(a);
+        if (scoreDiff !== 0) return scoreDiff;
+        if (!a.picks || !b.picks) return 0;
+        const diff = new Date(a.picks.submittedAt) - new Date(b.picks.submittedAt);
+        return Number.isNaN(diff) ? 0 : diff;
+      });
+
+      scoreboardBody.innerHTML = entries.map(entry => {
+        const score = scoreFor(entry);
+        const submittedAt = entry.picks?.submittedAt ? new Date(entry.picks.submittedAt) : null;
+        const submittedText = submittedAt && !isNaN(submittedAt) ? submittedAt.toLocaleString() : '—';
+        return `
+          <tr class="${currentUser && entry.id === currentUser.id ? 'highlight' : ''}">
+            <td>${entry.firstName} ${entry.lastName}</td>
+            <td>${score}</td>
+            <td>${totalResolved}</td>
+            <td>${submittedText}</td>
+          </tr>
+        `;
+      }).join('') || '<tr><td colspan="4">No entries yet. Once picks are submitted, they will appear here.</td></tr>';
+    }
+
+    function scoreFor(user) {
+      if (!user.picks) return 0;
+      return allKeys().reduce((acc, key) => {
+        if (!results[key]) return acc;
+        return acc + (user.picks.answers[key] === results[key] ? 1 : 0);
+      }, 0);
+    }
+
+    function renderResultsEditor() {
+      resultsEditor.innerHTML = sections.map(section => {
+        const block = section.questions.map(q => {
+          const options = [''].concat(q.options);
+          const optionsMarkup = options.map(opt => {
+            const label = opt ? opt : 'Unresolved';
+            const selected = results[q.key] === opt ? 'selected' : '';
+            return `<option value="${opt}" ${selected}>${label}</option>`;
+          }).join('');
+          return `
+            <label class="stack" style="margin-bottom:8px;">
+              <span>${q.prompt}</span>
+              <select data-key="${q.key}">${optionsMarkup}</select>
+            </label>
+          `;
+        }).join('');
+        return `
+          <div class="stack" style="margin-bottom:16px;">
+            <h4 style="margin:0;">${section.title}</h4>
+            ${block}
+          </div>
+        `;
+      }).join('');
+
+      resultsEditor.querySelectorAll('select').forEach(select => {
+        select.addEventListener('change', event => {
+          const key = event.target.dataset.key;
+          const value = event.target.value;
+          if (value) {
+            results[key] = value;
+          } else {
+            delete results[key];
+          }
+          saveResults();
+          renderStatus();
+        });
+      });
+    }
+
+    function renderMyPicks() {
+      if (!currentUser || !currentUser.picks) {
+        myPicks.innerHTML = '<p class="meta">You have not saved any picks yet.</p>';
+        return;
+      }
+      const rows = sections.map(section => {
+        const items = section.questions.map(q => {
+          const pick = currentUser.picks.answers[q.key];
+          const actual = results[q.key] || 'Pending';
+          const status = !results[q.key]
+            ? 'pending'
+            : results[q.key] === pick
+              ? 'correct'
+              : 'incorrect';
+          const statusText = status === 'pending' ? 'Pending' : status === 'correct' ? 'Correct' : 'Incorrect';
+          return `
+            <tr>
+              <td style="width:45%;">${q.prompt}</td>
+              <td style="width:20%;">${pick || '—'}</td>
+              <td style="width:20%;">${actual}</td>
+              <td style="width:15%;"><span class="status-chip ${status}">${statusText}</span></td>
+            </tr>
+          `;
+        }).join('');
+        return `
+          <div style="margin-bottom:16px;">
+            <h4 style="margin:0 0 8px 0;">${section.title}</h4>
+            <div style="overflow-x:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Line</th>
+                    <th>Your pick</th>
+                    <th>Actual</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>${items}</tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }).join('');
+      myPicks.innerHTML = rows;
+    }
   </script>
 </body>
 </html>
